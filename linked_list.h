@@ -1,10 +1,3 @@
-/*
-
-Auteur: Cédric Libert
-Description: liste chainée d'entiers
-
-*/
-
 #ifndef LL_H
 #define LL_H
 
@@ -15,7 +8,6 @@ typedef struct LinkedList* LL_t; //déclaration d'un alias qui désigne le type 
 #include <stdlib.h>
 #include <stdio.h>
 #include "Fighters.h"
-
 
 //PRE: /
 //POST: initialise une liste chainée vide et renvoie un pointeur vers celle-ci 

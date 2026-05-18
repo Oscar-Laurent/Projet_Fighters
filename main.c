@@ -8,9 +8,10 @@
 #include "utils.h"
 #include "PQ.h"
 #include "shot.h"
+#include "statistics.h"
 
 int main(void) {
-    //srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL));
 
     int fighter_number;
     LL_t fighters_list = new_list();
@@ -24,8 +25,8 @@ int main(void) {
             matches = scanf("%i", &fighter_number);
         }
 
-    if (fighter_number < 2) {
-        printf("Il faut au moins 2 joueurs!\n");
+    if (fighter_number < 2 || fighter_number > MAX_X * MAX_Y) {
+        printf("Le nombre de joueur doit se trouver entre 2 et %i\n", MAX_X * MAX_Y);
         destroy_list(fighters_list);
         return 1;
     }
@@ -38,6 +39,7 @@ int main(void) {
     printf("\n================ Etat initial ================\n");
     print_fighter_list(fighters_list);
 
+    dict_t stats_list = newDict(fighter_number * 2);
     fighter_t last_dead = NULL;
     int resurrection_chance = 10;
     int turn = 0;
@@ -56,6 +58,7 @@ int main(void) {
                     set_position(last_dead, rx, ry);
                     add_item(fighters_list, last_dead);
                     printf("%s est ressuscite avec %d PV!\n", get_name(last_dead), new_pv);
+                    updateResurectionNumber(stats_list, get_name(last_dead));
                     last_dead = NULL;
                 }
             }
@@ -89,10 +92,11 @@ int main(void) {
             }
             bool is_hit = apply_damage(target_fighter, get_power(shot_i));
 
-            if (is_hit)
+            if (is_hit) {
                 printf("%s tire à la position (%i, %i) et inflige %i dégat(s) à %s !\n",
                      get_name(shooter), target_position[0], target_position[1], get_power(shot_i), get_name(target_fighter));
-
+                updateDamageStat(stats_list, get_name(shooter), get_name(target_fighter), get_power(shot_i));
+            }
             else {
                 printf("%s tire à la position (%i, %i) mais %s esquive !\n",
                      get_name(shooter), target_position[0], target_position[1], get_name(target_fighter));
@@ -133,6 +137,10 @@ int main(void) {
     } else {
         printf("Tous les combattants sont morts en meme temps!\n");
     }
+
+    // Affichage des statisitiques de jeu
+    printf("\n=== Statistique de jeu ===\n");
+    printStatDict(stats_list);
 
     // Cleanup
     destroy_list(fighters_list);

@@ -1,9 +1,3 @@
-/*
-
-Auteur: Cédric Libert
-Description: liste chainée d'entiers
-
-*/
 #include "linked_list.h"
 #include "Fighters.h"
 #include "utils.h"
