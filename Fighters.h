@@ -1,6 +1,9 @@
 #ifndef FIGHTER_H
 #define FIGHTER_H
 
+#define MAX_X 3
+#define MAX_Y 3
+
 struct Fighter;
 typedef struct Fighter* fighter_t;
 
@@ -32,7 +35,7 @@ void destroy_fighter(fighter_t f);
 //POST: Return true if damaged was applied (e.i. the fighter did not dodge) 
 //      Return False is damage was not applied (e.i. the fighter dodge)
 //      Modify the fighter pv accordingly
-bool apply_damage(fighter_t f);
+bool apply_damage(fighter_t f, int damage);
 
 //PRE: The fighter list is already inisialized 
 //POST: Return de average of pv of all the fighters in fighters_list (return 0 in the list is empty)
@@ -41,6 +44,10 @@ int compute_average_pv(LL_t fighters_list);
 //PRE: f and fighter_list are initialized 
 //POST: change the position of the fighter f randomly within all free adjacant tiles of f
 void move_fighter(fighter_t f, LL_t fighters_list);
+
+//PRE: figther list initialized and (x, y) within board limits
+//POST: return a pointer to the figther at the position (x, y)
+fighter_t fighter_at_position(LL_t fighters_list, int x, int y);
 
 // ###### SELF EXPLANATORY SECTION #######
 char* get_name(fighter_t fighter);

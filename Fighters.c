@@ -1,13 +1,12 @@
 #include "Fighters.h"
 #include "linked_list.h"
 #include "utils.h"
-#define MAX_X 10
-#define MAX_Y 10
 
 struct Fighter {
     char* name;
     int pv;
     int speed;
+    int dodge;
     int x;
     int y;
 };
@@ -17,16 +16,15 @@ fighter_t rand_init_fighter(fighters_list_t fighters_list) {
     int new_name_lenght = random_number(4, 10);
     char *new_name = malloc(sizeof(char) * (unsigned long)(new_name_lenght + 1));
     random_name(new_name_lenght, new_name);
-
     new_fighter->name = new_name;
     new_fighter->pv = random_number(1, 5);
-    new_fighter->speed = random_number(1, 5);
+    new_fighter->speed = random_number(1, 10);
+    new_fighter->dodge = random_number(1, 5);
     int new_x, new_y;
     if (free_position(fighters_list, &new_x, &new_y)) {
         new_fighter->x = new_x;
         new_fighter->y = new_y;
     }
-
     return new_fighter;
 }
 
@@ -38,11 +36,9 @@ void add_fighter(fighters_list_t fighters_list, fighter_t new_fighter) {
     add_item(fighters_list, new_fighter);
 }
 
-
 char* get_name(fighter_t fighter) {
     return fighter->name;
 }
-
 
 bool is_same_position(fighter_t f1, fighter_t f2) {
     return f1->x == f2->x && f1->y == f2->y;
@@ -53,13 +49,12 @@ bool free_position(LL_t fighters_list, int *out_x, int *out_y) {
     int n_try = 0;
     int max_try = 2 * (length(fighters_list) + 5);
     bool found = false;
-
     while (!found && n_try < max_try){
         x = random_number(0, MAX_X - 1);
         y = random_number(0, MAX_Y - 1);
         found = true;
         n_try++;
-
+        
         for (int i = 0; i < length(fighters_list); i++){
             fighter_t fighter_i = get_by_idx(fighters_list, i);
             if (x == fighter_i->x && y == fighter_i->y) {
@@ -122,14 +117,13 @@ bool is_alive(fighter_t f) {
     return f->pv > 0;
 }
 
-bool apply_damage(fighter_t f) {
+bool apply_damage(fighter_t f, int damage) {
     int dodge_roll = random_number(1, 100);
-    if (dodge_roll <= f->speed * 10) {
-        printf("%s esquive le tir!\n", f->name);
-        return f->pv > 0;
+    if (dodge_roll <= f->dodge * 10) {
+        return 0;
     }
-    f->pv -= 1;
-    return f->pv > 0;
+    f->pv -= damage;
+    return 1;
 }
 
 int compute_average_pv(LL_t fighters_list) {
@@ -174,4 +168,16 @@ void move_fighter(fighter_t f, LL_t fighters_list) {
         f->x = valid_x[choice];
         f->y = valid_y[choice];
     }
+}
+
+fighter_t fighter_at_position(LL_t fighters_list, int x, int y) {
+    fighter_t fighter = NULL;
+    for (int i = 0; i < length(fighters_list); i++) {
+        fighter_t fighter_i = get_by_idx(fighters_list, i);
+        if (fighter_i->x == x && fighter_i->y == y) {
+            fighter = fighter_i;
+            break;
+        }
+    }
+    return fighter;
 }

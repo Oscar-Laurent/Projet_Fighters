@@ -6,12 +6,15 @@
 #include "linked_list.h"
 #include "Fighters.h"
 #include "utils.h"
+#include "PQ.h"
+#include "shot.h"
 
 int main(void) {
     //srand((unsigned int)time(NULL));
 
     int fighter_number;
     LL_t fighters_list = new_list();
+    PQ_t shots_list = new_PQ();
 
     printf("Entrez le nombre de joueur: ");
     int matches = scanf("%i", &fighter_number);
@@ -32,7 +35,7 @@ int main(void) {
         add_item(fighters_list, new_fighter);
     }
 
-    printf("\n=== Etat initial ===\n");
+    printf("\n================ Etat initial ================\n");
     print_fighter_list(fighters_list);
 
     fighter_t last_dead = NULL;
@@ -41,7 +44,7 @@ int main(void) {
 
     while (1) {
         turn++;
-        printf("\n=== Tour %d ===\n", turn);
+        printf("\n\n================ Tour %d ================\n", turn);
 
         // Resurrection
         if (last_dead != NULL) {
@@ -58,9 +61,43 @@ int main(void) {
             }
         }
 
-        // Degats
+        // Queueing all shots in the priority queue
         for (int i = 0; i < length(fighters_list); i++) {
-            apply_damage(get_by_idx(fighters_list, i));
+            int shot_roll = random_number(0, 1);
+            if (shot_roll)
+                continue;  // Skip 50% of the time
+            
+            fighter_t fighter_i = get_by_idx(fighters_list, i);
+            shot_t shot_i = init_shot(fighter_i);
+            enqueue(shots_list, shot_i); 
+        }
+
+        // Traiter les tirs par ordre de vitesse
+        while (PQ_len(shots_list) > 0) {
+            shot_t shot_i = serve_max(shots_list);
+            fighter_t shooter = get_shooter(shot_i);
+            int* target_position = get_target(shot_i);
+            fighter_t target_fighter = fighter_at_position(fighters_list, target_position[0], target_position[1]);
+            if (!is_alive(shooter)) {
+                free(shot_i);
+                continue;
+            }
+            if (target_fighter == NULL) {
+                printf("%s tire à la position (%i, %i) mais cette case est vide...\n", get_name(shooter), target_position[0], target_position[1]);
+                free(shot_i);
+                continue;
+            }
+            bool is_hit = apply_damage(target_fighter, get_power(shot_i));
+
+            if (is_hit)
+                printf("%s tire à la position (%i, %i) et inflige %i dégat(s) à %s !\n",
+                     get_name(shooter), target_position[0], target_position[1], get_power(shot_i), get_name(target_fighter));
+
+            else {
+                printf("%s tire à la position (%i, %i) mais %s esquive !\n",
+                     get_name(shooter), target_position[0], target_position[1], get_name(target_fighter));
+            }
+            free(shot_i);
         }
 
         // Retirer les morts (en arriere)

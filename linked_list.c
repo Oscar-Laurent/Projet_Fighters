@@ -21,7 +21,6 @@ struct LinkedList {
   struct Node* last;
 };
 
-
 //PRE: /
 //POST: initialise une liste chainée vide et renvoie un pointeur vers celle-ci 
 LL_t new_list(void){
@@ -69,6 +68,7 @@ fighter_t get_first(LL_t liste){
   }
   return val;
 }
+
 //PRE: liste est initialisé, length(liste)>0
 //POST: renvoie le dernier élément de liste (élément le plus "à droite") et l'enlève de la liste.
 //      length(liste)=length(liste)-1 
@@ -101,7 +101,6 @@ fighter_t get_by_idx(LL_t fighter_list, int x) {
   for (int i = 0; i < x; i++) {
     node_i = node_i->next;
   }
-
   return node_i->valeur;
 }
 
@@ -127,7 +126,7 @@ fighter_t remove_by_idx(LL_t liste, int idx) {
   for (int i = 0; i < idx - 1; i++) {
     prev_node = prev_node->next;
   }
-
+  
   struct Node* node_i = prev_node->next;
   fighter_t val = node_i->valeur;
   prev_node->next = node_i->next;
